@@ -1,9 +1,12 @@
 import './App.css'
+import Header from './components/Header'
+import SignIn from './pages/SignIn'
 
 function App() {
   return (
     <>
-      <h1>HAR HAR MAHADEV</h1>
+    <Header />
+      <SignIn />
     </>
   )
 }
