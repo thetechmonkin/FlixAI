@@ -1,6 +1,12 @@
+/***
+ * 1. Implement incorrect id pwd sign in error
+ */
+
 import React, { useRef, useState } from "react";
 import config from "../config";
 import { isValidEmail, isValidPassword } from "../utils/validate";
+import { auth } from "../firebase";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
 const SignIn = () => {
   const [isSignin, setIsSignin] = useState(true);
@@ -11,6 +17,7 @@ const SignIn = () => {
   const email = useRef();
   const password = useRef();
 
+  // PRIMARY BUTTON
   const handlePrimaryBtn = (e) => {
     e.preventDefault();
 
@@ -18,13 +25,52 @@ const SignIn = () => {
       ? setEmailError("Please enter a valid email address")
       : setEmailError(null);
 
-      console.log(password.current.value)
     !isValidPassword(password.current.value)
       ? setPasswordError(
           "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character."
         )
       : setPasswordError(null);
+
+    if (emailError || passwordError) {
+      return;
+    }
+
+    if (!isSignin) {
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+          // ...
+          console.log("USER ", user);
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          // ..
+          console.log(" ERROR ", errorCode, errorMessage);
+        });
+    } else {
+      signInWithEmailAndPassword(auth, email.current.value, password.current.value)
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          console.log("USER SIGNIN", user);
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.log(" ERROR SIGNIN", errorCode, errorMessage);
+
+        });
+    }
   };
+
+  // SECONDARY BUTTON
   const handleSecondaryBtn = () => {
     setIsSignin(!isSignin);
   };
@@ -33,7 +79,7 @@ const SignIn = () => {
       style={{ backgroundImage: `url(${config.signInBackgroundImg})` }}
       className="text-slate-200 relative h-screen w-full bg-cover bg-center bg-no-repeat flex justify-center items-center"
     >
-      <div className="w-5/6 md:w-1/2 px-8 py-16 max-w-[600px] bg-black opacity-80 rounded-l">
+      <div className="w-5/6 md:w-1/2 px-8 py-16 max-w-[420px] bg-black opacity-80 rounded-l">
         <h2 className="text-2xl font-bold mb-8 text-slate-100">
           {isSignin ? "Sign In" : "Sign up"}
         </h2>
@@ -59,7 +105,7 @@ const SignIn = () => {
             placeholder="Password"
             className="p-4 border border-slate-300 rounded-l bg-stone-800"
           />
-          {passwordError && <p className="text-red-500">{passwordError}</p>}
+          {passwordError && !isSignin && <p className="text-red-500">{passwordError}</p>}
           {/* PRIMARY BUTTON */}
           <button
             onClick={handlePrimaryBtn}
