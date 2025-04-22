@@ -1,4 +1,5 @@
 /***
+ * TO DO:
  * 1. Implement incorrect id pwd sign in error
  */
 
@@ -13,9 +14,9 @@ const SignIn = () => {
   const [emailError, setEmailError] = useState(null);
   const [passwordError, setPasswordError] = useState(null);
 
-  const name = useRef();
-  const email = useRef();
-  const password = useRef();
+  const name = useRef(null);
+  const email = useRef(null);
+  const password = useRef(null);
 
   // PRIMARY BUTTON
   const handlePrimaryBtn = (e) => {
